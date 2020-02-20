@@ -28,6 +28,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+APPS = [
+    'rest_framework_swagger',
+    'rest_framework',
+    'project_tracking',
+]
+
+INSTALLED_APPS += APPS
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
