@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
+from .models import Project, Task
 
 
 class UserProjectSerializer(serializers.ModelSerializer):
@@ -26,3 +27,9 @@ class UserProjectSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class TaskSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Task
+        fields = ('id', 'name', 'started_at', 'ended_at', 'spend_time')
