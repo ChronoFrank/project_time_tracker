@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserProjectSerializer, TaskSerializer
@@ -27,15 +27,23 @@ class UserProjectViewset(ModelViewSet):
     permission_classes = [IsAdminUser, IsAuthenticated]
 
 
-class TasksView(APIView):
+class TasksViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, ]
-    http_method_names = ['get', 'post']
+    http_method_names = ['get', 'post', 'put']
+    serializer_class = TaskSerializer
+    queryset = Task.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        query_set = Task.objects.filter(user=request.user).order_by('-started_at')
-        return Response(data=TaskSerializer(query_set, many=True).data, status=status.HTTP_200_OK)
+    def list(self, request, *args, **kwargs):
+        query_set = self.get_queryset().filter(user=request.user).order_by('-started_at')
+        page = self.paginate_queryset(query_set)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(query_set, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
         running_tasks = Task.objects.filter(user=request.user, ended_at__isnull=True, paused_at__isnull=True)
         if running_tasks.exists():
             return Response({'error': 'there are tasks running, '
@@ -75,4 +83,14 @@ class TasksView(APIView):
                 new_task = Task.objects.create(**params)
 
             return Response(TaskSerializer(instance=new_task).data, status=status.HTTP_200_OK)
+
+    @action(methods=['put', ], detail=False, url_path='pause_resume/(?P<pk>\d+)')
+    def pause_resume_task(self, request, pk):
+        try:
+            task = Task.objects.get(id=int(pk))
+        except Task.DoesNotExist:
+            return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        task.pause()
+        return Response(TaskSerializer(instance=task).data, status=status.HTTP_200_OK)
 

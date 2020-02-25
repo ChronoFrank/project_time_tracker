@@ -29,10 +29,41 @@ class Task(models.Model):
         start = self.started_at
         end = self.ended_at
         if not end:
-            end = timezone.now()
+            if self.is_paused:
+                end = self.paused_at
+            else:
+                end = timezone.now()
         delta = end - start
         total_seconds = int(delta.total_seconds())
         hours, remainder = divmod(total_seconds, 60 * 60)
         minutes, seconds = divmod(remainder, 60)
         return '{} hrs {} mins {} secs'.format(hours, minutes, seconds)
 
+    @property
+    def is_paused(self):
+        """
+        Determine whether or not this entry is paused
+        """
+        return bool(self.paused_at)
+
+    def pause(self):
+        """
+        If this entry is not paused, pause it.
+        """
+        if not self.is_paused:
+            self.paused_at = timezone.now()
+            self.save()
+
+    def unpause(self):
+        if self.is_paused:
+            delta = timezone.now() - self.paused_at
+            self.seconds_paused += delta.seconds
+            self.paused_at = None
+            self.save()
+
+    def restart(self):
+        self.started_at = timezone.now()
+        self.ended_at = None
+        self.seconds_paused = 0
+        self.paused_at = None
+        self.save()
