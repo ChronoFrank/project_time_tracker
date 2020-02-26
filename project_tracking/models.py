@@ -24,8 +24,7 @@ class Task(models.Model):
     def __str__(self):
         return '{0}-{1}'.format(self.name, self.project)
 
-    @property
-    def spend_time(self):
+    def get_total_task_seconds(self):
         start = self.started_at
         end = self.ended_at
         if not end:
@@ -35,6 +34,11 @@ class Task(models.Model):
                 end = timezone.now()
         delta = end - start
         total_seconds = int(delta.total_seconds())
+        return total_seconds
+
+    @property
+    def spend_time(self):
+        total_seconds = self.get_total_task_seconds()
         hours, remainder = divmod(total_seconds, 60 * 60)
         minutes, seconds = divmod(remainder, 60)
         return '{} hrs {} mins {} secs'.format(hours, minutes, seconds)
@@ -45,6 +49,13 @@ class Task(models.Model):
         Determine whether or not this entry is paused
         """
         return bool(self.paused_at)
+
+    @property
+    def is_closed(self):
+        """
+        Determine whether this entry has been closed or not
+        """
+        return bool(self.ended_at)
 
     def pause(self):
         """
@@ -60,6 +71,22 @@ class Task(models.Model):
             self.seconds_paused += delta.seconds
             self.paused_at = None
             self.save()
+
+    def toggle_paused(self):
+        """
+        Toggle the paused state of this entry.  If the entry is already paused,
+        it will be unpaused; if it is not paused, it will be paused.
+        """
+        if self.is_paused:
+            self.unpause()
+        else:
+            self.pause()
+
+    def close(self):
+        if self.is_paused:
+            self.unpause()
+        self.ended_at = timezone.now()
+        self.save()
 
     def restart(self):
         self.started_at = timezone.now()

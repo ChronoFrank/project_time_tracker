@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserProjectSerializer, TaskSerializer
+from .serializers import UserProjectSerializer, TaskSerializer, ProjectSerializer
 from django.contrib.auth.models import User
 from .models import Task, Project
 from datetime import datetime, timedelta
@@ -27,6 +27,20 @@ class UserProjectViewset(ModelViewSet):
     permission_classes = [IsAdminUser, IsAuthenticated]
 
 
+class ProjectViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated, ]
+    http_method_names = ['get', 'post']
+    serializer_class = ProjectSerializer
+    queryset = Project.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        validator = ProjectSerializer(data=self.request.data)
+        if not validator.is_valid():
+            return Response(validator.errors, status=status.HTTP_400_BAD_REQUEST)
+        project = Project.objects.create(**validator.data)
+        return Response(ProjectSerializer(instance=project).data, status=status.HTTP_201_CREATED)
+
+
 class TasksViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, ]
     http_method_names = ['get', 'post', 'put']
@@ -47,7 +61,7 @@ class TasksViewSet(ModelViewSet):
         running_tasks = Task.objects.filter(user=request.user, ended_at__isnull=True, paused_at__isnull=True)
         if running_tasks.exists():
             return Response({'error': 'there are tasks running, '
-                                      'you must pause or terminate'
+                                      'you must pause or close'
                                       ' them in order to create new tasks'}, status=status.HTTP_403_FORBIDDEN)
         else:
             project_id = request.data.get('project_id')
@@ -60,9 +74,10 @@ class TasksViewSet(ModelViewSet):
                 started_at = timezone.now()
                 params = {
                     "user": request.user,
-                    "name": task_name,
                     "started_at": started_at
                 }
+                if task_name:
+                    params.update({"name": task_name})
                 try:
                     project = Project.objects.get(id=int(project_id))
                     params.update({"project": project})
@@ -81,16 +96,73 @@ class TasksViewSet(ModelViewSet):
                                         status=status.HTTP_400_BAD_REQUEST)
 
                 new_task = Task.objects.create(**params)
-
-            return Response(TaskSerializer(instance=new_task).data, status=status.HTTP_200_OK)
+            return Response(TaskSerializer(instance=new_task).data, status=status.HTTP_201_CREATED)
 
     @action(methods=['put', ], detail=False, url_path='pause_resume/(?P<pk>\d+)')
     def pause_resume_task(self, request, pk):
         try:
-            task = Task.objects.get(id=int(pk))
+            task = Task.objects.get(id=int(pk), user=request.user)
+        except Task.DoesNotExist:
+            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not task.is_closed:
+            task.toggle_paused()
+            return Response(TaskSerializer(instance=task).data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'the task is already closed'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['put', ], detail=False, url_path='close/(?P<pk>\d+)')
+    def close_task(self, request, pk):
+        try:
+            task = Task.objects.get(id=int(pk), user=request.user)
+        except Task.DoesNotExist:
+            return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        if not task.is_closed:
+            task.close()
+            return Response(TaskSerializer(instance=task).data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Task already closed'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['put', ], detail=False, url_path='restart/(?P<pk>\d+)')
+    def restart_task(self, request, pk):
+        try:
+            task = Task.objects.get(id=int(pk), user=request.user)
         except Task.DoesNotExist:
             return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        task.pause()
-        return Response(TaskSerializer(instance=task).data, status=status.HTTP_200_OK)
+        if not task.is_closed:
+            task.restart()
+            return Response(TaskSerializer(instance=task).data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Task already closed'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post', ], detail=False, url_path='continue')
+    def continue_task(self, request):
+        running_tasks = Task.objects.filter(user=request.user, ended_at__isnull=True, paused_at__isnull=True)
+        if running_tasks.exists():
+            return Response({'error': 'there are tasks running, '
+                                      'you must pause or close'
+                                      ' them in order to create new tasks'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            task_id = request.data.get('id')
+            if not task_id:
+                return Response({'error': 'You must provide a task id'
+                                          ' in order to continue task'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                task = Task.objects.get(id=int(task_id), user=request.user, ended_at__isnull=False)
+            except Task.DoesNotExist:
+                return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            kwargs = {
+                'name': task.name,
+                'project': task.project,
+                'user': task.user,
+                'cloned_from': task,
+                'started_at': timezone.now()
+            }
+            new_task = Task.objects.create(**kwargs)
+            return Response(TaskSerializer(instance=new_task).data, status=status.HTTP_201_CREATED)
+
+
+
 

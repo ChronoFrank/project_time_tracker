@@ -8,7 +8,7 @@ class TaskInlineAdmin(admin.StackedInline):
 
 
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('user', 'project', 'name', 'cloned_from')
+    list_display = ('name', 'user', 'project', 'cloned_from')
 
 
 class ProjectAdmin(admin.ModelAdmin):
