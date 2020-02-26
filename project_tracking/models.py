@@ -6,13 +6,39 @@ from datetime import timedelta
 
 class Project(models.Model):
     name = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
 
+    @property
+    def total_spend_time(self):
+        total_seconds = 0
+        for task in self.task_set.all():
+            total_seconds += task.get_total_task_seconds()
+
+        hours, remainder = divmod(total_seconds, 60 * 60)
+        minutes, seconds = divmod(remainder, 60)
+        return '{} hrs {} mins {} secs'.format(hours, minutes, seconds)
+
+    @property
+    def project_tasks(self):
+        data = []
+        for task in self.task_set.exclude(cloned_from__isnull=False):
+            task_seconds = 0
+            task_seconds += task.get_total_task_seconds()
+            for sub_task in task.task_set.all():
+                task_seconds += sub_task.get_total_task_seconds()
+
+            hours, remainder = divmod(task_seconds, 60 * 60)
+            minutes, seconds = divmod(remainder, 60)
+            spend_time = '{} hrs {} mins {} secs'.format(hours, minutes, seconds)
+            data.append({"name": task.name, "spend_time": spend_time})
+
+        return data
+
 
 class Task(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True)
     cloned_from = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(default='Unnamed task', max_length=250)

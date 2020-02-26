@@ -36,9 +36,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(required=True,  max_length=200, validators=[UniqueValidator(queryset=Project.objects.all())])
+    name = serializers.CharField(required=True,  max_length=200,
+                                 validators=[UniqueValidator(queryset=Project.objects.all())])
 
     class Meta:
         model = Project
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'total_spend_time', 'project_tasks')
 

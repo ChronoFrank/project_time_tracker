@@ -33,11 +33,11 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     queryset = Project.objects.all()
 
-    def create(self, request, *args, **kwargs):
+    def create(self, *args, **kwargs):
         validator = ProjectSerializer(data=self.request.data)
         if not validator.is_valid():
             return Response(validator.errors, status=status.HTTP_400_BAD_REQUEST)
-        project = Project.objects.create(**validator.data)
+        project = Project.objects.create(user=self.request.user, **validator.data)
         return Response(ProjectSerializer(instance=project).data, status=status.HTTP_201_CREATED)
 
 
@@ -48,7 +48,7 @@ class TasksViewSet(ModelViewSet):
     queryset = Task.objects.all()
 
     def list(self, request, *args, **kwargs):
-        query_set = self.get_queryset().filter(user=request.user).order_by('-started_at')
+        query_set = self.get_queryset().filter(project__user=request.user).order_by('-started_at')
         page = self.paginate_queryset(query_set)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -58,7 +58,7 @@ class TasksViewSet(ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        running_tasks = Task.objects.filter(user=request.user, ended_at__isnull=True, paused_at__isnull=True)
+        running_tasks = Task.objects.filter(project__user=request.user, ended_at__isnull=True, paused_at__isnull=True)
         if running_tasks.exists():
             return Response({'error': 'there are tasks running, '
                                       'you must pause or close'
@@ -73,13 +73,12 @@ class TasksViewSet(ModelViewSet):
             else:
                 started_at = timezone.now()
                 params = {
-                    "user": request.user,
                     "started_at": started_at
                 }
                 if task_name:
                     params.update({"name": task_name})
                 try:
-                    project = Project.objects.get(id=int(project_id))
+                    project = Project.objects.get(id=int(project_id), user=self.request.user)
                     params.update({"project": project})
                 except (Project.DoesNotExist, ValueError) as e:
                     return Response({'error': 'Invalid Project'}, status=status.HTTP_400_BAD_REQUEST)
@@ -101,7 +100,7 @@ class TasksViewSet(ModelViewSet):
     @action(methods=['put', ], detail=False, url_path='pause_resume/(?P<pk>\d+)')
     def pause_resume_task(self, request, pk):
         try:
-            task = Task.objects.get(id=int(pk), user=request.user)
+            task = Task.objects.get(id=int(pk), project__user=request.user)
         except Task.DoesNotExist:
             return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -114,7 +113,7 @@ class TasksViewSet(ModelViewSet):
     @action(methods=['put', ], detail=False, url_path='close/(?P<pk>\d+)')
     def close_task(self, request, pk):
         try:
-            task = Task.objects.get(id=int(pk), user=request.user)
+            task = Task.objects.get(id=int(pk), project__user=request.user)
         except Task.DoesNotExist:
             return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
         if not task.is_closed:
@@ -126,7 +125,7 @@ class TasksViewSet(ModelViewSet):
     @action(methods=['put', ], detail=False, url_path='restart/(?P<pk>\d+)')
     def restart_task(self, request, pk):
         try:
-            task = Task.objects.get(id=int(pk), user=request.user)
+            task = Task.objects.get(id=int(pk), project__user=request.user)
         except Task.DoesNotExist:
             return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -138,7 +137,7 @@ class TasksViewSet(ModelViewSet):
 
     @action(methods=['post', ], detail=False, url_path='continue')
     def continue_task(self, request):
-        running_tasks = Task.objects.filter(user=request.user, ended_at__isnull=True, paused_at__isnull=True)
+        running_tasks = Task.objects.filter(project__user=request.user, ended_at__isnull=True, paused_at__isnull=True)
         if running_tasks.exists():
             return Response({'error': 'there are tasks running, '
                                       'you must pause or close'
@@ -149,7 +148,7 @@ class TasksViewSet(ModelViewSet):
                 return Response({'error': 'You must provide a task id'
                                           ' in order to continue task'}, status=status.HTTP_400_BAD_REQUEST)
             try:
-                task = Task.objects.get(id=int(task_id), user=request.user, ended_at__isnull=False)
+                task = Task.objects.get(id=int(task_id), project__user=request.user, ended_at__isnull=False)
             except Task.DoesNotExist:
                 return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
