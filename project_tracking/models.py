@@ -13,6 +13,9 @@ class Project(models.Model):
 
     @property
     def total_spend_time(self):
+        """
+        :return: calculated time spend in all tasks for the current project
+        """
         total_seconds = 0
         for task in self.task_set.all():
             total_seconds += task.get_total_task_seconds()
@@ -23,6 +26,9 @@ class Project(models.Model):
 
     @property
     def project_tasks(self):
+        """
+        :return: list of tasks related to the project having count of tasks that have been continued
+        """
         data = []
         for task in self.task_set.exclude(cloned_from__isnull=False):
             task_seconds = 0
@@ -51,6 +57,9 @@ class Task(models.Model):
         return '{0}-{1}'.format(self.name, self.project)
 
     def get_total_task_seconds(self):
+        """
+        :return: calculated seconds between started_at filed and ended_at field without the seconds_paused
+        """
         start = self.started_at
         end = self.ended_at
         if not end:
@@ -64,6 +73,9 @@ class Task(models.Model):
 
     @property
     def spend_time(self):
+        """
+        :return: formated time pass
+        """
         total_seconds = self.get_total_task_seconds()
         hours, remainder = divmod(total_seconds, 60 * 60)
         minutes, seconds = divmod(remainder, 60)
@@ -92,6 +104,9 @@ class Task(models.Model):
             self.save()
 
     def unpause(self):
+        """
+        reset paused_at field and update senconds_paused field with seconds pass since the last pause
+        """
         if self.is_paused:
             delta = timezone.now() - self.paused_at
             self.seconds_paused += delta.seconds
@@ -109,12 +124,18 @@ class Task(models.Model):
             self.pause()
 
     def close(self):
+        """
+        add current datetime to the ended_at field to close the task
+        """
         if self.is_paused:
             self.unpause()
         self.ended_at = timezone.now()
         self.save()
 
     def restart(self):
+        """
+        restore tasks defaults
+        """
         self.started_at = timezone.now()
         self.ended_at = None
         self.seconds_paused = 0
