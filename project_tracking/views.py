@@ -13,18 +13,16 @@ from django.utils import timezone
 
 class UserProjectViewset(ModelViewSet):
     """
-    Small ViewSet  to handle no admin users
+    Small ViewSet  to handle users
     retrieve:
-        Return a serialized user instance.
+        Return a serialized user instance. the list of projects and tasks and the spend time per project.
     list:
-        Return all users, ordered by most recently joined.
-    create:
-        Create a new user.
+        Return all users, the list of projects and tasks by user and the spend time per project.
     """
-    queryset = User.objects.filter(is_superuser=False)
+    queryset = User.objects.all()
     serializer_class = UserProjectSerializer
-    http_method_names = ['get', 'post']
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    http_method_names = ['get', ]
+    permission_classes = [IsAuthenticated, ]
 
 
 class ProjectViewSet(ModelViewSet):
