@@ -1,0 +1,408 @@
+{
+	"info": {
+		"_postman_id": "f03ae5e8-9101-4e0c-a18f-6a24cb60edfd",
+		"name": "project_tracker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Access Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"fcarreno\", \"password\":\"chronoglen\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:12001/api/v1/access_token/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"access_token",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"refresh\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTU4Mjc1NTcwOSwianRpIjoiZjQ4NzE4YWZkN2EyNDViMmIwYWMwZTFlYjA2NDc5ZDUiLCJ1c2VyX2lkIjoxfQ.GU6FpO6z8W15TiTFXAVBaV3aul5WHMzuKeBrUMliBBk\"\n\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:12001/api/v1/refresh_token/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"refresh_token",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List User Tasks",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNjc5MDkwLCJqdGkiOiI5ZjlmYzg2ZjFiYjc0ZDNlYTczMGNmODYxOTkyNmZkYyIsInVzZXJfaWQiOjF9.lIULzs5EkQnDO61lj4uupnvEWuxd5qqUegT6s5erJpw",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:12001/api/v1/tasks/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Projects",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNzU0MTg1LCJqdGkiOiIxMzE1ODYxMmMyYTM0N2RlYmJkNDdmNTFmODg5YTEwZSIsInVzZXJfaWQiOjF9.npxQAC9QmSRh5_-O8JHPCTkpYck-Pnk9b28qwM0MhUc"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:12001/api/v1/projects/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"projects",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Users and projects",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNzYxODQ2LCJqdGkiOiJjMGM5NDAzZDQ2ZmE0NjA2YmIzNGRjNDEzMGYyMDM4MiIsInVzZXJfaWQiOjF9.2_h064-eyxPBhhJxxm0-JFaC5emVa5fezRkIN2BK9_c"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:12001/api/v1/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create new Projects",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNjc5MDkwLCJqdGkiOiI5ZjlmYzg2ZjFiYjc0ZDNlYTczMGNmODYxOTkyNmZkYyIsInVzZXJfaWQiOjF9.lIULzs5EkQnDO61lj4uupnvEWuxd5qqUegT6s5erJpw"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"project2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:12001/api/v1/projects/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"projects",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pause Task",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNjc1NzMzLCJqdGkiOiIwNWE4ZGE3OTU1NGM0MzQ0OWJiODFkYzEyMjRkMGQ2OCIsInVzZXJfaWQiOjF9.wLg683WpaVnqVghd5r0BrpNU7rTPZLaG_H9VuCL6XqU"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:12001/api/v1/tasks/pause_resume/10/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						"pause_resume",
+						"10",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Close Task",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNzU1Mzk5LCJqdGkiOiJjNTA0NGI2OWZkZDM0NTdiOTgyZmM3ZTkzMjFjZTQzNCIsInVzZXJfaWQiOjF9.AefThffTMC2Jyj_UPUlg3qMU2CQtt-gEgeiOtEVZOkE"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:12001/api/v1/tasks/close/13/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						"close",
+						"13",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Restart task",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNjc0NzYxLCJqdGkiOiJlMzQ5YmYzYWJmMTg0ZTE5YmYzNzUzNWFlMmYyOWMzOSIsInVzZXJfaWQiOjF9.uBrrfL8J1-bZCwhtX3yCEygGsZs594Qk2d4o0NhChG4"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:12001/api/v1/tasks/restart/7/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						"restart",
+						"7",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start or create new tasks",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNjc1NzMzLCJqdGkiOiIwNWE4ZGE3OTU1NGM0MzQ0OWJiODFkYzEyMjRkMGQ2OCIsInVzZXJfaWQiOjF9.wLg683WpaVnqVghd5r0BrpNU7rTPZLaG_H9VuCL6XqU"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"project_id\": 1\n\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:12001/api/v1/tasks/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Continue task",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer  eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTgyNjc3NTYyLCJqdGkiOiJmMjkyMmRjMGZiMDg0ZDc0ODM5OTEwOTYyMTc0MWExNyIsInVzZXJfaWQiOjF9.qcFfNVsAC26lN8RGxryITU358V-QuFKIKX3BCr7t7VI"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": 9\n\t\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:12001/api/v1/tasks/continue/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "12001",
+					"path": [
+						"api",
+						"v1",
+						"tasks",
+						"continue",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
