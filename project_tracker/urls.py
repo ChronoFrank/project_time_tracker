@@ -3,10 +3,9 @@ from django.conf.urls import url, include
 from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
 from django.contrib import admin
-from rest_framework_swagger.views import get_swagger_view
 from project_tracking import urls as project_tracking_urls
+from rest_framework.documentation import include_docs_urls
 
-schema_view = get_swagger_view(title='project tracker Api')
 
 api_v1 = [
     url(r'^api/v1/access_token/$', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -16,6 +15,6 @@ api_v1 = [
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^docs/$', schema_view, name='docs'),
+    url(r'^docs/', include_docs_urls(title='Project Tracker API Documentation')),
 ] + api_v1
 

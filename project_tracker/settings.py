@@ -29,7 +29,6 @@ INSTALLED_APPS = [
 ]
 
 APPS = [
-    'rest_framework_swagger',
     'rest_framework',
     'project_tracking',
 ]

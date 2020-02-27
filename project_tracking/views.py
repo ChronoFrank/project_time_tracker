@@ -13,11 +13,11 @@ from django.utils import timezone
 
 class UserProjectViewset(ModelViewSet):
     """
-    Small ViewSet  to handle users
-    retrieve:
-        Return a serialized user instance. the list of projects and tasks and the spend time per project.
-    list:
-        Return all users, the list of projects and tasks by user and the spend time per project.
+       list:
+       Return a list of all the existing users and the related information about projects, tasks, spend time.
+
+       retrieve:
+       Return the given user and the related information about projects.
     """
     queryset = User.objects.all()
     serializer_class = UserProjectSerializer
@@ -26,6 +26,16 @@ class UserProjectViewset(ModelViewSet):
 
 
 class ProjectViewSet(ModelViewSet):
+    """
+       list:
+       Return a list of all the existing projects for the authenticated user
+       and the related information about projects, tasks, spend time.
+       for the tasks that has been continue, the spend time will be added to the original.
+
+       create:
+       given a project name, this endpoint will create a new project instance for the authenticated user
+
+    """
     permission_classes = [IsAuthenticated, ]
     http_method_names = ['get', 'post']
     serializer_class = ProjectSerializer
@@ -38,8 +48,29 @@ class ProjectViewSet(ModelViewSet):
         project = Project.objects.create(user=self.request.user, **validator.data)
         return Response(ProjectSerializer(instance=project).data, status=status.HTTP_201_CREATED)
 
+    def list(self, request, *args, **kwargs):
+        query_set = self.get_queryset().filter(user=request.user)
+        page = self.paginate_queryset(query_set)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(query_set, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 
 class TasksViewSet(ModelViewSet):
+    """
+       list:
+       Return a list of all the existing tasks for the authenticated user.
+
+       create:
+       Given a projet_id this enpoint will create a new task. some parameters are
+       *project_id (required) id to link the task to an existing project
+       *name (optional) task name
+       *duration (optional) time in format H:M:S to specify the task duration.
+
+    """
     permission_classes = [IsAuthenticated, ]
     http_method_names = ['get', 'post', 'put']
     serializer_class = TaskSerializer
@@ -97,6 +128,11 @@ class TasksViewSet(ModelViewSet):
 
     @action(methods=['put', ], detail=False, url_path='pause_resume/(?P<pk>\d+)')
     def pause_resume_task(self, request, pk):
+        """
+        put:
+        given a task id, this endpoint will pause or unpause a task
+        (update the paused_at and seconds_paused fields in the model)
+        """
         try:
             task = Task.objects.get(id=int(pk), project__user=request.user)
         except Task.DoesNotExist:
@@ -110,6 +146,10 @@ class TasksViewSet(ModelViewSet):
 
     @action(methods=['put', ], detail=False, url_path='close/(?P<pk>\d+)')
     def close_task(self, request, pk):
+        """
+       put:
+       given a task id, this endpoint will close task (update ended_at field with the current date and time).
+       """
         try:
             task = Task.objects.get(id=int(pk), project__user=request.user)
         except Task.DoesNotExist:
@@ -122,6 +162,11 @@ class TasksViewSet(ModelViewSet):
 
     @action(methods=['put', ], detail=False, url_path='restart/(?P<pk>\d+)')
     def restart_task(self, request, pk):
+        """
+            put:
+            given a task id, this endpoint will update the fileds started_at, ended_at,
+             seconds_paused and paused_at, to the default values
+       """
         try:
             task = Task.objects.get(id=int(pk), project__user=request.user)
         except Task.DoesNotExist:
@@ -135,6 +180,10 @@ class TasksViewSet(ModelViewSet):
 
     @action(methods=['post', ], detail=False, url_path='continue')
     def continue_task(self, request):
+        """
+            put:
+            given a task id, this endpoint will take a closed task and start a new one associated to the closed one
+       """
         running_tasks = Task.objects.filter(project__user=request.user, ended_at__isnull=True, paused_at__isnull=True)
         if running_tasks.exists():
             return Response({'error': 'there are tasks running, '
