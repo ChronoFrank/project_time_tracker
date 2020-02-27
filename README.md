@@ -1,8 +1,8 @@
-#DRF Project time tracking
+# DRF Project time tracking
 
 This project is a small rest-api application for tracking people's time on projects and tasks.
 
-##Features:
+## Features:
 - User authentication
 - create projets
 - create tasks and associate them to projects
@@ -10,12 +10,12 @@ This project is a small rest-api application for tracking people's time on proje
 - pause, continue and restart tasks
 - keep track of projects by user and the associated tasks
 
-##Requirements
+## Requirements
 1. virtualenvwrapper (https://virtualenvwrapper.readthedocs.io/en/latest/install.html)
 2. Python 3.6 or higher.
 3. PostgreSQL 10
 
-##Installation
+## Installation
 
 #### 1. Create virtualenv:
 ```
@@ -69,24 +69,24 @@ Then you can sync the database.
 $ python manage.py migrate
 ```
 
-####5. Run tests to validate everything
+#### 5. Run tests to validate everything
 ```
 $ python manage.py test
 
 # if we want to get the coverage report:
 coverage run --source='.' manage.py test project_tracker; coverage report
 ```
-####6. Run the server:
+#### 6. Run the server:
 ```
 $ python manage.py runserver 12001
 ```
 
-###7. create superuser to access the endpoints
+### 7. create superuser to access the endpoints
 ```
 $ python manage.py createsuperuser
 ```
 
-###8. check the API documentation and the postman collection for usage
+### 8. check the API documentation and the postman collection for usage
 
 - the api documentation is at http://localhost:12001/docs
 - import the project_tracker.postman_collection.json in postman to test the endpoints.
