@@ -181,7 +181,7 @@ class TasksViewSet(ModelViewSet):
     @action(methods=['post', ], detail=False, url_path='continue')
     def continue_task(self, request):
         """
-            put:
+            post:
             given a task id, this endpoint will take a closed task and start a new one associated to the closed one
        """
         running_tasks = Task.objects.filter(project__user=request.user, ended_at__isnull=True, paused_at__isnull=True)
@@ -197,12 +197,11 @@ class TasksViewSet(ModelViewSet):
             try:
                 task = Task.objects.get(id=int(task_id), project__user=request.user, ended_at__isnull=False)
             except Task.DoesNotExist:
-                return Response({'detail': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
 
             kwargs = {
                 'name': task.name,
                 'project': task.project,
-                'user': task.user,
                 'cloned_from': task,
                 'started_at': timezone.now()
             }
