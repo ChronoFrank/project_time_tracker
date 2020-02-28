@@ -1,0 +1,41 @@
+[run]
+source = .
+omit =
+    */migrations/*
+    */tests/*
+    */django_migrations/*
+    .nox/*
+    noxfile.py
+    */settings.py
+    */settings_local.py
+    */wsgi.py
+    */manage.py
+    */schedule.py
+    */__init__.py
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    if self\.debug
+    import .*
+    from .* import .*
+    @staticmethod
+    @source.setter
+    class Meta
+    except ImportError
+
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
+
+
+ignore_errors = True

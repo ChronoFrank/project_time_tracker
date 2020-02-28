@@ -74,7 +74,7 @@ $ python manage.py migrate
 $ python manage.py test
 
 # if we want to get the coverage report:
-coverage run --source='.' manage.py test project_tracker; coverage report
+coverage run ./manage.py test; coverage report
 ```
 #### 6. Run the server:
 ```
@@ -89,4 +89,9 @@ $ python manage.py createsuperuser
 ### 8. check the API documentation and the postman collection for usage
 
 - the api documentation is at http://localhost:12001/docs
-- import the project_tracker.postman_collection.json in postman to test the endpoints.
+- to use the endpoints you must get the access_token provided by /api/v1/access_token/ the token will have a
+duration of 5 minutes, after that you must user the /api/v1/refresh_token/ to get a new one.
+- all the endpoints must have the Authorization header with the access_token as value
+- You also can import the project_tracker.postman_collection.json in postman to test the endpoints.
+
+Happy coding :)
