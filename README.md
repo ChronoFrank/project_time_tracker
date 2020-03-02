@@ -10,8 +10,8 @@ This project is a small rest-api application for tracking people's time on proje
 - pause, continue and restart tasks
 - keep track of projects by user and the associated tasks
 
-## Requirements
-1. virtualenvwrapper (https://virtualenvwrapper.readthedocs.io/en/latest/install.html)
+## Minimun Requirements
+1. virtualenvwrapper, install it from (https://virtualenvwrapper.readthedocs.io/en/latest/install.html)
 2. Python 3.6 or higher.
 3. PostgreSQL 10
 
@@ -19,7 +19,7 @@ This project is a small rest-api application for tracking people's time on proje
 
 #### 1. Create virtualenv:
 ```
-$ mkvirtualenv project_tracker
+$ mkvirtualenv project_tracker --python=python3
 ```
 #### 2. Clone the repository:
 ```
